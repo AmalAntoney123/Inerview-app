@@ -1,0 +1,178 @@
+:root {
+  --primary-bg: #F5EFE6;
+  --secondary-bg: #E8DFCA;
+  --accent-color: #6D94C5;
+  --light-accent: #CBDCEB;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.navbar-custom {
+  background-color: var(--accent-color);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-custom .navbar-brand,
+.navbar-custom .nav-link {
+  color: white !important;
+  font-weight: 500;
+}
+
+.navbar-custom .nav-link:hover {
+  color: var(--light-accent) !important;
+}
+
+.hero-section {
+  background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+  color: var(--accent-color);
+  padding: 100px 0;
+  position: relative;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(109, 148, 197, 0.1);
+  z-index: 1;
+}
+
+.hero-section .container {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-section h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.hero-section p {
+  color: var(--secondary-bg);
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.btn-custom {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  padding: 12px 30px;
+  font-weight: 600;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(109, 148, 197, 0.3);
+}
+
+.btn-custom:hover {
+  background-color: #5a83b0;
+  border-color: #5a83b0;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(109, 148, 197, 0.4);
+}
+
+section {
+  padding: 80px 0;
+}
+
+#about {
+  background-color: var(--light-accent);
+}
+
+#features {
+  background-color: white;
+}
+
+#demo {
+  background-color: var(--primary-bg);
+}
+
+#contact {
+  background-color: var(--secondary-bg);
+}
+
+.card-custom {
+  background-color: var(--light-accent);
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+
+.card-custom:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+}
+
+.card-custom img {
+  height: 200px;
+  object-fit: cover;
+}
+
+.card-custom .card-body {
+  padding: 2rem;
+}
+
+.card-custom .card-title {
+  color: var(--accent-color);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.card-custom .card-text {
+  color: var(--secondary-bg);
+}
+
+.footer-custom {
+  background-color: var(--secondary-bg);
+  color: var(--accent-color);
+  padding: 20px 0;
+  font-weight: 500;
+}
+
+.form-control {
+  border-radius: 10px;
+  border: 2px solid var(--accent-color);
+  padding: 12px;
+}
+
+.form-control:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 0.2rem rgba(109, 148, 197, 0.25);
+}
+
+h2 {
+  font-weight: 700;
+  margin-bottom: 2rem;
+}
+
+.signin-link {
+  background-color: white;
+  color: var(--accent-color) !important;
+  border: 2px solid var(--accent-color);
+  padding: 6px 14px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  margin-left: 10px;
+  font-weight: 600;
+}
+
+.signin-link:hover {
+  background-color: var(--accent-color);
+  color: white !important;
+  transform: scale(1.05);
+  text-decoration: none;
+}

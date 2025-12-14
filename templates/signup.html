@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - InterviewWhiz</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">InterviewWhiz</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}#home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}#about">About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}#features">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}#demo">Demo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}#contact">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="signin-link" href="{{ url_for('user.signin') }}">Sign In</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hero-section text-center py-5" data-aos="fade-in">
+        <div class="container">
+            <h1 class="display-4" data-aos="zoom-in">Sign Up for InterviewWhiz</h1>
+            <p class="lead" data-aos="fade-up">Join us to start your AI-powered interview training journey.</p>
+        </div>
+    </div>
+
+    <section class="py-5" data-aos="fade-up">
+        <div class="container">
+            <div class="row justify-content-center align-items-center">
+                <div class="col-md-6" data-aos="fade-right">
+                    <h2 class="mb-4" style="color: var(--accent-color);">Create Your Account</h2>
+                    <form id="signupForm">
+                        <div class="mb-3">
+                            <label for="fullname" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="fullname" required>
+                            <div class="invalid-feedback">Please enter your full name.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" required>
+                            <div class="invalid-feedback">Please enter a valid email address.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phone">
+                            <div class="invalid-feedback">Please enter a valid phone number.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" required>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback">Password must be at least 6 characters with at least one uppercase letter, one number, and one special character.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="confirmPassword" required>
+                                <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="invalid-feedback">Passwords do not match.</div>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="terms" required>
+                            <label class="form-check-label" for="terms">I agree to the Terms and Conditions</label>
+                            <div class="invalid-feedback">You must agree to the terms.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-custom w-100">Sign Up</button>
+                    </form>
+                    <p class="mt-3 text-center">Already have an account? <a href="{{ url_for('user.signin') }}" style="color: var(--accent-color);">Sign In</a></p>
+                </div>
+                <div class="col-md-6" data-aos="fade-left" data-aos-delay="200">
+                    <img src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=500" alt="Sign Up Illustration" class="img-fluid rounded">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="text-center py-3 footer-custom">
+        <p>&copy; 2025 InterviewWhiz. All rights reserved.</p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+
+        // Real-time validation
+        const form = document.getElementById('signupForm');
+
+        // Full name
+        document.getElementById('fullname').addEventListener('input', function() {
+            if (this.value.trim()) {
+                this.classList.remove('is-invalid');
+            } else {
+                this.classList.add('is-invalid');
+            }
+        });
+
+        // Email
+        document.getElementById('email').addEventListener('input', function() {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (this.value && emailRegex.test(this.value)) {
+                this.classList.remove('is-invalid');
+            } else {
+                this.classList.add('is-invalid');
+            }
+        });
+
+        // Phone
+        document.getElementById('phone').addEventListener('input', function() {
+            const phoneRegex = /^\+?[\d\s\-\(\)]+$/;
+            if (!this.value || phoneRegex.test(this.value)) {
+                this.classList.remove('is-invalid');
+            } else {
+                this.classList.add('is-invalid');
+            }
+        });
+
+        // Password
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+
+        password.addEventListener('input', function() {
+            const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+            if (passwordRegex.test(this.value)) {
+                this.classList.remove('is-invalid');
+            } else {
+                this.classList.add('is-invalid');
+            }
+            // Also check confirm password
+            if (confirmPassword.value && confirmPassword.value === this.value) {
+                confirmPassword.classList.remove('is-invalid');
+            } else if (confirmPassword.value) {
+                confirmPassword.classList.add('is-invalid');
+            }
+        });
+
+        // Confirm password
+        confirmPassword.addEventListener('input', function() {
+            if (this.value === password.value && this.value) {
+                this.classList.remove('is-invalid');
+            } else {
+                this.classList.add('is-invalid');
+            }
+        });
+
+        // Terms
+        document.getElementById('terms').addEventListener('change', function() {
+            if (this.checked) {
+                this.classList.remove('is-invalid');
+            } else {
+                this.classList.add('is-invalid');
+            }
+        });
+
+        // Password toggle
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const password = document.getElementById('password');
+            const icon = this.querySelector('i');
+            if (password.type === 'password') {
+                password.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                password.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // Confirm password toggle
+        document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
+            const confirmPassword = document.getElementById('confirmPassword');
+            const icon = this.querySelector('i');
+            if (confirmPassword.type === 'password') {
+                confirmPassword.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                confirmPassword.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+
+        // Form validation on submit
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            let isValid = true;
+            const errors = [];
+
+            // Check all fields
+            const fields = ['fullname', 'email', 'phone', 'password', 'confirmPassword'];
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el.classList.contains('is-invalid') || (el.hasAttribute('required') && !el.value.trim())) {
+                    errors.push(`${el.previousElementSibling.textContent} is invalid.`);
+                    isValid = false;
+                }
+            });
+
+            if (!document.getElementById('terms').checked) {
+                errors.push('You must agree to the terms.');
+                isValid = false;
+            }
+
+            if (isValid) {
+                alert('Signup successful! Welcome to InterviewWhiz.');
+            } else {
+                alert('Please fix the following errors:\n' + errors.join('\n'));
+            }
+        });
+    </script>
+</body>
+</html>
