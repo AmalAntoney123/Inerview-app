@@ -56,27 +56,34 @@
         <div class="container">
             <div class="row justify-content-center align-items-center">
                 <div class="col-md-6" data-aos="fade-right">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            <div class="alert alert-info">
+                                {{ messages[0] }}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
                     <h2 class="mb-4" style="color: var(--accent-color);">Create Your Account</h2>
-                    <form id="signupForm">
+                    <form id="signupForm" action="{{ url_for('user.signup') }}" method="post">
                         <div class="mb-3">
                             <label for="fullname" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" id="fullname" required>
+                            <input type="text" class="form-control" id="fullname" name="fullname" required>
                             <div class="invalid-feedback">Please enter your full name.</div>
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
-                            <input type="email" class="form-control" id="email" required>
+                            <input type="email" class="form-control" id="email" name="email" required>
                             <div class="invalid-feedback">Please enter a valid email address.</div>
                         </div>
                         <div class="mb-3">
                             <label for="phone" class="form-label">Phone Number</label>
-                            <input type="tel" class="form-control" id="phone">
+                            <input type="tel" class="form-control" id="phone" name="phone">
                             <div class="invalid-feedback">Please enter a valid phone number.</div>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
                             <div class="input-group">
-                                <input type="password" class="form-control" id="password" required>
+                                <input type="password" class="form-control" id="password" name="password" required>
                                 <button class="btn btn-outline-secondary" type="button" id="togglePassword">
                                     <i class="fas fa-eye"></i>
                                 </button>
@@ -86,7 +93,7 @@
                         <div class="mb-3">
                             <label for="confirmPassword" class="form-label">Confirm Password</label>
                             <div class="input-group">
-                                <input type="password" class="form-control" id="confirmPassword" required>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
                                 <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
                                     <i class="fas fa-eye"></i>
                                 </button>
@@ -224,7 +231,6 @@
 
         // Form validation on submit
         form.addEventListener('submit', function(event) {
-            event.preventDefault();
             let isValid = true;
             const errors = [];
 
@@ -243,11 +249,11 @@
                 isValid = false;
             }
 
-            if (isValid) {
-                alert('Signup successful! Welcome to SkillSpeak.');
-            } else {
+            if (!isValid) {
+                event.preventDefault();
                 alert('Please fix the following errors:\n' + errors.join('\n'));
             }
+            // If valid, allow form to submit
         });
     </script>
 </body>
