@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - InterviewWhiz</title>
+    <title>Dashboard - SkillSpeak</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -11,36 +11,151 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-custom">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('index') }}">InterviewWhiz</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('user.dashboard') }}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('user.logout') }}">Logout</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+<body class="dashboard-body">
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">SkillSpeak</div>
 
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-12">
-                <h1>Welcome to your Dashboard!</h1>
-                <p>You are logged in as {{ session['user'] }}.</p>
-                <!-- Add more dashboard content here -->
+            <div class="profile">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop" alt="Profile" class="profile-img">
+                <h3>{{ user.fullname if user and 'fullname' in user else session['user'] }}</h3>
+                <p>{{ session['user'] }}</p>
+                <span class="status">● Active</span>
             </div>
-        </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item active">🏠 Dashboard</li>
+                <li class="nav-item">📊 Analytics</li>
+                <li class="nav-item">📝 Task List</li>
+                <li class="nav-item">⏱️ Tracking</li>
+                <li class="nav-item">⚙️ Settings</li>
+            </ul>
+
+            <div class="logout-section">
+                <a href="{{ url_for('user.logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1>Hello, {{ user.fullname if user and 'fullname' in user else session['user'].split('@')[0] }}!</h1>
+                <p>Today is Monday, 22 December 2025</p>
+                <div class="header-actions">
+                    <input type="text" class="search-bar" placeholder="🔍 Search interviews, practice sessions...">
+                    <button class="btn-primary">Add New Practice</button>
+                </div>
+            </div>
+
+            <!-- Project Cards -->
+            <div class="projects-grid">
+                {% for area in practice_areas %}
+                <div class="project-card {{ area.color }}">
+                    <span class="menu-dots">⋮</span>
+                    <div class="project-avatars">
+                        <img src="https://i.pravatar.cc/150?img={{ loop.index }}" alt="">
+                        <img src="https://i.pravatar.cc/150?img={{ loop.index + 1 }}" alt="">
+                        <span class="project-count">+{{ area.sessions - 5 }}</span>
+                    </div>
+                    <h3>{{ area.name.split()[0] }}<br>{{ ' '.join(area.name.split()[1:]) }}</h3>
+                    <div class="project-stats">
+                        <span>{{ area.sessions }} sessions</span>
+                        <span>{{ area.progress }}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 68"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Tasks and Stats -->
+            <div class="tasks-container">
+                <div class="tasks-list">
+                    <h2 class="section-title">Practice for today</h2>
+                    {% for task in today_tasks %}
+                    <div class="task-item {{ task.color }}{% if task.completed %} checked{% endif %}">
+                        <div class="task-checkbox{% if task.completed %} checked{% endif %}"></div>
+                        <div class="task-info">
+                            <h4>{{ task.title }}</h4>
+                            <p>{{ task.description }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="stats-section">
+                    <h2 class="section-title">Statistics</h2>
+                    <div class="stats-widget">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <h3>{{ stats.practice_time }}</h3>
+                                <p>Practice<br>time</p>
+                            </div>
+                            <div class="stat-item">
+                                <h3>{{ stats.interviews_completed }}</h3>
+                                <p>Completed<br>sessions</p>
+                            </div>
+                            <div class="stat-item">
+                                <h3>{{ stats.achievements }}</h3>
+                                <p>New<br>skills</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pricing-card">
+                        <h2>$9.99</h2>
+                        <h3>Pro Plan</h3>
+                        <p>More productivity<br>with premium!</p>
+                        <img src="https://illustrations.popsy.co/amber/team-spirit.svg" alt="Team">
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Calendar Sidebar -->
+        <aside class="calendar">
+            <div class="calendar-header">
+                <h2>Calendar</h2>
+                <span></span>
+            </div>
+
+            <div class="calendar-date">
+                <span>Dec 22, 2025</span>
+                <span>⋮</span>
+            </div>
+
+            {% for event in calendar_events %}
+            <div class="event-item">
+                <div class="event-time">{{ event.time }}</div>
+                <div class="event-bar {{ event.color }}"></div>
+                <div class="event-details">
+                    <div class="event-title">{{ event.title }}</div>
+                    <div class="event-name">{{ event.company }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </aside>
     </div>
 
+    <script>
+        // Task checkbox interaction
+        document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                this.classList.toggle('checked');
+            });
+        });
+
+        // Project card click
+        document.querySelectorAll('.project-card').forEach(card => {
+            card.addEventListener('click', function() {
+                console.log('Opening project:', this.querySelector('h3').textContent);
+            });
+        });
+    </script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

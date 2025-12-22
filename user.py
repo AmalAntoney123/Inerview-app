@@ -83,7 +83,90 @@ def signup():
 def dashboard():
     if 'user' not in session:
         return redirect(url_for('user.signin'))
-    return render_template('dashboard.html')
+    
+    # Get user data from database
+    user_data = users_collection.find_one({'email': session['user']})
+    
+    # Mock data for now - in a real app, this would come from the database
+    dashboard_data = {
+        'user': user_data,
+        'stats': {
+            'interviews_completed': 5,
+            'average_score': 4.2,
+            'practice_time': '12h',
+            'achievements': 3
+        },
+        'practice_areas': [
+            {
+                'name': 'Technical Interviews',
+                'sessions': 10,
+                'progress': 85,
+                'color': 'purple'
+            },
+            {
+                'name': 'Behavioral Practice',
+                'sessions': 12,
+                'progress': 78,
+                'color': 'teal'
+            },
+            {
+                'name': 'System Design Sessions',
+                'sessions': 8,
+                'progress': 92,
+                'color': 'orange'
+            }
+        ],
+        'upcoming_interviews': [
+            {
+                'title': 'Software Engineer Interview',
+                'company': 'Google Inc.',
+                'type': 'Technical Round',
+                'date': 'Tomorrow 2:00 PM'
+            },
+            {
+                'title': 'Product Manager Interview',
+                'company': 'Amazon',
+                'type': 'Behavioral Round',
+                'date': 'Dec 28, 10:00 AM'
+            }
+        ],
+        'today_tasks': [
+            {
+                'title': 'Behavioral Interview',
+                'description': 'Prepare STAR method examples',
+                'color': 'teal',
+                'completed': False
+            },
+            {
+                'title': 'System Design',
+                'description': 'Design scalable architecture',
+                'color': 'purple',
+                'completed': False
+            },
+            {
+                'title': 'Technical Coding',
+                'description': 'Array problems practice',
+                'color': 'orange',
+                'completed': True
+            }
+        ],
+        'calendar_events': [
+            {
+                'time': '10:00',
+                'title': 'Technical Interview',
+                'company': 'Google Inc',
+                'color': 'teal'
+            },
+            {
+                'time': '13:20',
+                'title': 'Behavioral Round',
+                'company': 'Amazon',
+                'color': 'orange'
+            }
+        ]
+    }
+    
+    return render_template('dashboard.html', **dashboard_data)
 
 @user_bp.route('/logout')
 def logout():
