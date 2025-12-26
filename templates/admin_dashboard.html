@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SkillSpeak</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="dashboard-body">
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">SkillSpeak Admin</div>
+
+            <div class="profile">
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop" alt="Profile" class="profile-img">
+                <h3>{{ user.fullname }}</h3>
+                <p>{{ user.email }}</p>
+                <span class="status">● Active</span>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item active">🏠 Dashboard</li>
+                <li class="nav-item">👥 User Management</li>
+                <li class="nav-item">📊 Analytics</li>
+                <li class="nav-item">⚙️ System Settings</li>
+                <li class="nav-item">📝 Interview Sessions</li>
+            </ul>
+
+            <div class="logout-section">
+                <a href="{{ url_for('user.logout') }}" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1>Hello, {{ user.fullname }}!</h1>
+                <p>Admin Dashboard - Today is Monday, 22 December 2025</p>
+                <div class="header-actions">
+                    <input type="text" class="search-bar" placeholder="🔍 Search users, sessions...">
+                    <button class="btn-primary">System Status</button>
+                </div>
+            </div>
+
+            <!-- Admin Stats Overview -->
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <h3>{{ stats.total_users }}</h3>
+                    <p>Total Users</p>
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-card">
+                    <h3>{{ stats.active_sessions }}</h3>
+                    <p>Active Sessions</p>
+                    <i class="fas fa-play-circle"></i>
+                </div>
+                <div class="stat-card">
+                    <h3>{{ stats.system_health }}</h3>
+                    <p>System Health</p>
+                    <i class="fas fa-heartbeat"></i>
+                </div>
+            </div>
+
+            <!-- Tabs for Admin Functionalities -->
+            <div class="admin-tabs">
+                <ul class="nav nav-tabs" id="adminTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">Overview</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#users" type="button" role="tab" aria-controls="users" aria-selected="false">User Management</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="analytics-tab" data-bs-toggle="tab" data-bs-target="#analytics" type="button" role="tab" aria-controls="analytics" aria-selected="false">Analytics</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab" aria-controls="settings" aria-selected="false">Settings</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="adminTabContent">
+                    <!-- Overview Tab -->
+                    <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                        <div class="overview-content">
+                            <h2>System Overview</h2>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Recent Activity</h5>
+                                            <ul class="list-group list-group-flush">
+                                                {% for activity in recent_activities %}
+                                                <li class="list-group-item">{{ activity.action }}: {{ activity.user }} - {{ activity.time }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Quick Actions</h5>
+                                            <button class="btn btn-primary mb-2">Generate Report</button>
+                                            <button class="btn btn-secondary mb-2">Backup Database</button>
+                                            <button class="btn btn-info">Send Notification</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Management Tab -->
+                    <div class="tab-pane fade" id="users" role="tabpanel" aria-labelledby="users-tab">
+                        <div class="user-management">
+                            <h2>User Management</h2>
+                            <div class="d-flex justify-content-between mb-3">
+                                <input type="text" class="form-control" placeholder="Search users..." style="width: 300px;">
+                                <button class="btn btn-success">Add New User</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Status</th>
+                                            <th>Last Login</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for user in users %}
+                                        <tr>
+                                            <td>{{ user.name }}</td>
+                                            <td>{{ user.email }}</td>
+                                            <td><span class="badge {% if user.status == 'Active' %}bg-success{% else %}bg-secondary{% endif %}">{{ user.status }}</span></td>
+                                            <td>{{ user.last_login }}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary">Edit</button>
+                                                <button class="btn btn-sm btn-danger">Delete</button>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Tab -->
+                    <div class="tab-pane fade" id="analytics" role="tabpanel" aria-labelledby="analytics-tab">
+                        <div class="analytics-content">
+                            <h2>Analytics</h2>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">User Growth</h5>
+                                            <canvas id="userGrowthChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Session Statistics</h5>
+                                            <canvas id="sessionChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Settings Tab -->
+                    <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+                        <div class="settings-content">
+                            <h2>System Settings</h2>
+                            <form>
+                                <div class="mb-3">
+                                    <label for="systemName" class="form-label">System Name</label>
+                                    <input type="text" class="form-control" id="systemName" value="SkillSpeak">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="maxUsers" class="form-label">Max Users</label>
+                                    <input type="number" class="form-control" id="maxUsers" value="1000">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="backupFrequency" class="form-label">Backup Frequency</label>
+                                    <select class="form-control" id="backupFrequency">
+                                        <option>Daily</option>
+                                        <option>Weekly</option>
+                                        <option>Monthly</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Save Settings</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Calendar Sidebar -->
+        <aside class="calendar">
+            <div class="calendar-header">
+                <h2>System Events</h2>
+                <span></span>
+            </div>
+
+            <div class="calendar-date">
+                <span>Dec 22, 2025</span>
+                <span>⋮</span>
+            </div>
+
+            {% for event in system_events %}
+            <div class="event-item">
+                <div class="event-time">{{ event.time }}</div>
+                <div class="event-bar {{ event.color }}"></div>
+                <div class="event-details">
+                    <div class="event-title">{{ event.title }}</div>
+                    <div class="event-name">{{ event.type }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </aside>
+    </div>
+
+    <!-- Bottom Navigation Bar for Mobile -->
+    <nav class="bottom-nav d-block d-md-none">
+        <ul class="bottom-nav-menu">
+            <li class="bottom-nav-item">
+                <button class="active" onclick="switchTab('overview')">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </button>
+            </li>
+            <li class="bottom-nav-item">
+                <button onclick="switchTab('users')">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </button>
+            </li>
+            <li class="bottom-nav-item">
+                <button onclick="switchTab('analytics')">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Analytics</span>
+                </button>
+            </li>
+            <li class="bottom-nav-item">
+                <button onclick="switchTab('settings')">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Initialize charts if on analytics tab
+        document.getElementById('analytics-tab').addEventListener('shown.bs.tab', function () {
+            const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+            new Chart(userGrowthCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Users',
+                        data: {{ analytics.user_growth | tojson }},
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                }
+            });
+
+            const sessionCtx = document.getElementById('sessionChart').getContext('2d');
+            new Chart(sessionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Sessions',
+                        data: {{ analytics.session_stats | tojson }},
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                }
+            });
+        });
+    </script>
+
+    <script>
+    // Function to switch tabs from bottom navigation
+    function switchTab(tabName) {
+        // Remove active class from all nav links
+        document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+        document.querySelectorAll('.bottom-nav-item button').forEach(btn => btn.classList.remove('active'));
+
+        // Add active class to the corresponding tab
+        const tabButton = document.getElementById(tabName + '-tab');
+        if (tabButton) {
+            tabButton.classList.add('active');
+        }
+
+        // Show the corresponding tab content
+        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('show', 'active'));
+        const tabPane = document.getElementById(tabName);
+        if (tabPane) {
+            tabPane.classList.add('show', 'active');
+        }
+
+        // Update bottom nav active state
+        event.target.closest('button').classList.add('active');
+
+        // Initialize charts if analytics tab is activated
+        if (tabName === 'analytics') {
+            // Charts will be initialized by the shown.bs.tab event
+        }
+    }
+    </script>
