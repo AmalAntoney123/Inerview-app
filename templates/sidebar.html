@@ -1,0 +1,22 @@
+<!-- sidebar.html: Common sidebar for all user pages -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">SkillSpeak</div>
+        <p>{{ sidebar_title if sidebar_title else 'User Dashboard' }}</p>
+    </div>
+    <ul class="sidebar-menu">
+        {% if user.email == 'admin@gmail.com' %}
+            <li><a href="{{ url_for('user.admin_dashboard') }}" class="{% if active_page == 'dashboard' %}active{% endif %}"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="#"><i class="fas fa-users"></i> Users</a></li>
+            <li><a href="#"><i class="fas fa-bullseye"></i> Interviews</a></li>
+            <li><a href="#"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+            <li><a href="{{ url_for('user.admin_profile') }}" class="{% if active_page == 'profile' %}active{% endif %}"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+            <li><a href="{{ url_for('user.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        {% else %}
+            <li><a href="{{ url_for('user.dashboard') }}" class="{% if active_page == 'dashboard' %}active{% endif %}"><i class="fas fa-robot"></i> Interview Prep</a></li>
+            <li><a href="{{ url_for('user.profile') }}" class="{% if active_page == 'profile' %}active{% endif %}"><i class="fas fa-user"></i> Profile</a></li>
+            <li><a href="{{ url_for('user.logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+        {% endif %}
+    </ul>
+</div>

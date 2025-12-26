@@ -1,0 +1,44 @@
+<!-- bottom_nav.html: Common bottom navigation for all user pages -->
+<nav class="bottom-nav">
+    <ul class="bottom-nav-menu">
+        {% if user.email == 'admin@gmail.com' %}
+            <li><a href="{{ url_for('user.admin_dashboard') }}" class="{% if active_page == 'dashboard' %}active{% endif %}">
+                <div class="bottom-nav-icon"><i class="fas fa-tachometer-alt"></i></div>
+                <span>Dashboard</span>
+            </a></li>
+            <li><a href="#">
+                <div class="bottom-nav-icon"><i class="fas fa-users"></i></div>
+                <span>Users</span>
+            </a></li>
+            <li><a href="#">
+                <div class="bottom-nav-icon"><i class="fas fa-bullseye"></i></div>
+                <span>Interviews</span>
+            </a></li>
+            <li><a href="#">
+                <div class="bottom-nav-icon"><i class="fas fa-chart-bar"></i></div>
+                <span>Analytics</span>
+            </a></li>
+            <li><a href="{{ url_for('user.admin_profile') }}" class="{% if active_page == 'profile' %}active{% endif %}">
+                <div class="bottom-nav-icon"><i class="fas fa-user"></i></div>
+                <span>Profile</span>
+            </a></li>
+            <li><a href="{{ url_for('user.logout') }}">
+                <div class="bottom-nav-icon"><i class="fas fa-sign-out-alt"></i></div>
+                <span>Logout</span>
+            </a></li>
+        {% else %}
+            <li><a href="{{ url_for('user.dashboard') }}" class="{% if active_page == 'dashboard' %}active{% endif %}">
+                <div class="bottom-nav-icon"><i class="fas fa-robot"></i></div>
+                <span>Interview Prep</span>
+            </a></li>
+            <li><a href="{{ url_for('user.profile') }}" class="{% if active_page == 'profile' %}active{% endif %}">
+                <div class="bottom-nav-icon"><i class="fas fa-user"></i></div>
+                <span>Profile</span>
+            </a></li>
+            <li><a href="{{ url_for('user.logout') }}">
+                <div class="bottom-nav-icon"><i class="fas fa-sign-out-alt"></i></div>
+                <span>Logout</span>
+            </a></li>
+        {% endif %}
+    </ul>
+</nav>

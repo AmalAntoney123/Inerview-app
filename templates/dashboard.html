@@ -3,160 +3,722 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - SkillSpeak</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
+    <title>User Dashboard - SkillSpeak</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --dark: #1a1a1a;
+            --light: #f5f7fa;
+            --teal: #56ccf2;
+            --orange: #f5576c;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .sidebar-logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar-menu a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 12px 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        /* Tabs */
+        .tabs {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .tab-buttons {
+            display: flex;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px 20px;
+            background: none;
+            border: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .tab-button:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-button.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: white;
+        }
+
+        .tab-content {
+            padding: 30px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Interview History */
+        .interview-list {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .interview-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s;
+        }
+
+        .interview-item:hover {
+            background: #f8f9fa;
+        }
+
+        .interview-item:last-child {
+            border-bottom: none;
+        }
+
+        .interview-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            font-size: 18px;
+        }
+
+        .interview-details {
+            flex: 1;
+        }
+
+        .interview-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+
+        .interview-meta {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .interview-score {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .score-high { background: var(--success); color: white; }
+        .score-medium { background: var(--warning); color: white; }
+        .score-low { background: var(--danger); color: white; }
+
+        .interview-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #dee2e6;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        /* AI Chatbot */
+        .chat-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .chat-header h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            border-radius: 18px 18px 18px 4px;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 18px 18px 4px 18px;
+        }
+
+        .chat-input {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .chat-form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-field {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .chat-input-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .chat-send-btn {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .chat-send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Bottom Navigation for Mobile */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 10px;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .bottom-nav-menu {
+            display: flex;
+            justify-content: space-around;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .bottom-nav-menu li {
+            flex: 1;
+            text-align: center;
+        }
+
+        .bottom-nav-menu a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 12px;
+        }
+
+        .bottom-nav-menu a:hover,
+        .bottom-nav-menu a.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .bottom-nav-icon {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+
+            .bottom-nav {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                margin-bottom: 80px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-container {
+                height: 500px;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 16px rgba(102,126,234,0.2);
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 3000;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .fab:hover {
+            background: var(--secondary);
+            box-shadow: 0 8px 32px rgba(102,126,234,0.3);
+        }
+    </style>
 </head>
-<body class="dashboard-body">
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo">SkillSpeak</div>
+<body>
+    <!-- Sidebar -->
+    {% set sidebar_title = 'User Dashboard' %}
+    {% set active_page = 'dashboard' %}
+    {% include 'sidebar.html' %}
 
-            <div class="profile">
-                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop" alt="Profile" class="profile-img">
-                <h3>{{ user.fullname if user and 'fullname' in user else session['user'] }}</h3>
-                <p>{{ session['user'] }}</p>
-                <span class="status">● Active</span>
-            </div>
-
-            <ul class="nav-menu">
-                <li class="nav-item active">🏠 Dashboard</li>
-                <li class="nav-item">📊 Analytics</li>
-                <li class="nav-item">📝 Task List</li>
-                <li class="nav-item">⏱️ Tracking</li>
-                <li class="nav-item">⚙️ Settings</li>
-            </ul>
-
-            <div class="logout-section">
-                <a href="{{ url_for('user.logout') }}" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="header">
-                <h1>Hello, {{ user.fullname if user and 'fullname' in user else session['user'].split('@')[0] }}!</h1>
-                <p>Today is Monday, 22 December 2025</p>
-                <div class="header-actions">
-                    <input type="text" class="search-bar" placeholder="🔍 Search interviews, practice sessions...">
-                    <button class="btn-primary">Add New Practice</button>
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header fade-in">
+            <h1>Welcome back, {{ user.fullname if user.fullname else 'User' }}!</h1>
+            <div class="user-info">
+                <div class="user-avatar">
+                    {% if user.profile_image %}
+                        <img src="{{ url_for('static', filename='uploads/' + user.profile_image) }}" alt="Profile Image">
+                    {% else %}
+                        {{ user.fullname[0] if user.fullname else 'U' }}
+                    {% endif %}
                 </div>
+                <span>{{ user.fullname if user.fullname else 'User' }}</span>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs fade-in">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="switchTab('practice')">Interview Prep</button>
             </div>
 
-            <!-- Project Cards -->
-            <div class="projects-grid">
-                {% for area in practice_areas %}
-                <div class="project-card {{ area.color }}">
-                    <span class="menu-dots">⋮</span>
-                    <div class="project-avatars">
-                        <img src="https://i.pravatar.cc/150?img={{ loop.index }}" alt="">
-                        <img src="https://i.pravatar.cc/150?img={{ loop.index + 1 }}" alt="">
-                        <span class="project-count">+{{ area.sessions - 5 }}</span>
-                    </div>
-                    <h3>{{ area.name.split()[0] }}<br>{{ ' '.join(area.name.split()[1:]) }}</h3>
-                    <div class="project-stats">
-                        <span>{{ area.sessions }} sessions</span>
-                        <span>{{ area.progress }}%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 68"></div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-
-            <!-- Tasks and Stats -->
-            <div class="tasks-container">
-                <div class="tasks-list">
-                    <h2 class="section-title">Practice for today</h2>
-                    {% for task in today_tasks %}
-                    <div class="task-item {{ task.color }}{% if task.completed %} checked{% endif %}">
-                        <div class="task-checkbox{% if task.completed %} checked{% endif %}"></div>
-                        <div class="task-info">
-                            <h4>{{ task.title }}</h4>
-                            <p>{{ task.description }}</p>
+            <!-- Interview Prep Tab (merged) -->
+            <div id="practice" class="tab-content tab-pane active">
+                <div class="interview-list">
+                    <!-- Example past interviews (replace with dynamic content as needed) -->
+                    <div class="interview-item">
+                        <div class="interview-icon"><i class="fas fa-code"></i></div>
+                        <div class="interview-details">
+                            <div class="interview-title">Software Engineer Interview</div>
+                            <div class="interview-meta">Tech Corp • March 15, 2025 • 45 minutes</div>
+                            <span class="interview-score score-high">Score: 9.2/10</span>
+                        </div>
+                        <div class="interview-actions">
+                            <a href="#" class="btn btn-primary">View Details</a>
+                            <a href="#" class="btn btn-secondary">Review</a>
                         </div>
                     </div>
-                    {% endfor %}
+                    <div class="interview-item">
+                        <div class="interview-icon"><i class="fas fa-chart-bar"></i></div>
+                        <div class="interview-details">
+                            <div class="interview-title">Data Analyst Interview</div>
+                            <div class="interview-meta">Data Solutions Inc • March 8, 2025 • 40 minutes</div>
+                            <span class="interview-score score-high">Score: 8.7/10</span>
+                        </div>
+                        <div class="interview-actions">
+                            <a href="#" class="btn btn-primary">View Details</a>
+                            <a href="#" class="btn btn-secondary">Review</a>
+                        </div>
+                    </div>
+                    <div class="interview-item">
+                        <div class="interview-icon"><i class="fas fa-users"></i></div>
+                        <div class="interview-details">
+                            <div class="interview-title">Product Manager Interview</div>
+                            <div class="interview-meta">StartupXYZ • February 28, 2025 • 50 minutes</div>
+                            <span class="interview-score score-medium">Score: 7.5/10</span>
+                        </div>
+                        <div class="interview-actions">
+                            <a href="#" class="btn btn-primary">View Details</a>
+                            <a href="#" class="btn btn-secondary">Review</a>
+                        </div>
+                    </div>
+                    <div class="interview-item">
+                        <div class="interview-icon"><i class="fas fa-briefcase"></i></div>
+                        <div class="interview-details">
+                            <div class="interview-title">Marketing Manager Interview</div>
+                            <div class="interview-meta">Brand Agency • February 20, 2025 • 35 minutes</div>
+                            <span class="interview-score score-high">Score: 8.9/10</span>
+                        </div>
+                        <div class="interview-actions">
+                            <a href="#" class="btn btn-primary">View Details</a>
+                            <a href="#" class="btn btn-secondary">Review</a>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="stats-section">
-                    <h2 class="section-title">Statistics</h2>
-                    <div class="stats-widget">
-                        <div class="stats-grid">
-                            <div class="stat-item">
-                                <h3>{{ stats.practice_time }}</h3>
-                                <p>Practice<br>time</p>
-                            </div>
-                            <div class="stat-item">
-                                <h3>{{ stats.interviews_completed }}</h3>
-                                <p>Completed<br>sessions</p>
-                            </div>
-                            <div class="stat-item">
-                                <h3>{{ stats.achievements }}</h3>
-                                <p>New<br>skills</p>
+                <!-- Floating Action Button for New Interview -->
+                <button class="fab" title="Start New Interview" onclick="startNewInterview()">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <!-- AI Interview Prep Chat Section -->
+                <div class="chat-container" style="margin-top:40px;">
+                    <div class="chat-header">
+                        <h3><i class="fas fa-robot"></i> AI Interview Coach</h3>
+                        <p>Practice with our intelligent chatbot</p>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message bot">
+                            <div class="message-content">
+                                Hello! I'm your AI Interview Coach. I can help you practice for interviews by asking questions and providing feedback. What type of interview would you like to practice today?
                             </div>
                         </div>
                     </div>
-
-                    <div class="pricing-card">
-                        <h2>$9.99</h2>
-                        <h3>Pro Plan</h3>
-                        <p>More productivity<br>with premium!</p>
-                        <img src="https://illustrations.popsy.co/amber/team-spirit.svg" alt="Team">
+                    <div class="chat-input">
+                        <form class="chat-form" onsubmit="sendMessage(event)">
+                            <input type="text" class="chat-input-field" id="messageInput" placeholder="Type your response here..." required>
+                            <button type="submit" class="chat-send-btn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
-        </main>
-
-        <!-- Calendar Sidebar -->
-        <aside class="calendar">
-            <div class="calendar-header">
-                <h2>Calendar</h2>
-                <span></span>
-            </div>
-
-            <div class="calendar-date">
-                <span>Dec 22, 2025</span>
-                <span>⋮</span>
-            </div>
-
-            {% for event in calendar_events %}
-            <div class="event-item">
-                <div class="event-time">{{ event.time }}</div>
-                <div class="event-bar {{ event.color }}"></div>
-                <div class="event-details">
-                    <div class="event-title">{{ event.title }}</div>
-                    <div class="event-name">{{ event.company }}</div>
-                </div>
-            </div>
-            {% endfor %}
-        </aside>
+        </div>
     </div>
 
+    <!-- Bottom Navigation for Mobile -->
+    {% include 'bottom_nav.html' %}
+
     <script>
-        // Task checkbox interaction
-        document.querySelectorAll('.task-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('click', function() {
-                this.classList.toggle('checked');
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tab panes
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => button.classList.remove('active'));
+
+            // Show selected tab pane
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // AI Chatbot functionality
+        function sendMessage(event) {
+            event.preventDefault();
+
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (message) {
+                // Add user message
+                addMessage(message, 'user');
+
+                // Clear input
+                input.value = '';
+
+                // Simulate AI response (in a real app, this would be an API call)
+                setTimeout(() => {
+                    const responses = [
+                        "Great answer! Can you elaborate on your experience with that technology?",
+                        "That's interesting. How would you handle a situation where a project deadline is approaching and you're falling behind?",
+                        "Good point. What are your strengths and how do they align with this role?",
+                        "Excellent! Tell me about a time when you had to solve a difficult problem at work.",
+                        "Well done! How do you stay updated with the latest trends in your field?"
+                    ];
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addMessage(randomResponse, 'bot');
+                }, 1000);
+            }
+        }
+
+        function addMessage(content, sender) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            messageDiv.innerHTML = `
+                <div class="message-content">${content}</div>
+            `;
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Add fade-in animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Mobile bottom nav active state
+        document.querySelectorAll('.bottom-nav-menu a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                document.querySelectorAll('.bottom-nav-menu a').forEach(a => a.classList.remove('active'));
+                this.classList.add('active');
             });
         });
 
-        // Project card click
-        document.querySelectorAll('.project-card').forEach(card => {
-            card.addEventListener('click', function() {
-                console.log('Opening project:', this.querySelector('h3').textContent);
-            });
-        });
+        function startNewInterview() {
+            // Redirect or open modal for new interview
+            alert('Start a new interview (implement logic here)');
+        }
     </script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

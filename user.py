@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from pymongo import MongoClient
 import bcrypt
 from config import Config
+from werkzeug.utils import secure_filename
+import datetime
 
 load_dotenv()
 
@@ -400,6 +402,161 @@ def settings_content():
     user_data = users_collection.find_one({'email': session['user']})
     
     return render_template('settings-content.html', user=user_data)
+
+@user_bp.route('/profile')
+def profile():
+    if 'user' not in session:
+        return redirect(url_for('user.signin'))
+    
+    # Get user data from database
+    user_data = users_collection.find_one({'email': session['user']})
+    
+    # Mock stats for now
+    stats = {
+        'interviews_completed': 5,
+        'average_score': 4.2
+    }
+    
+    return render_template('profile.html', user=user_data, stats=stats)
+
+@user_bp.route('/admin_profile')
+def admin_profile():
+    if 'user' not in session or session['user'] != 'admin@gmail.com':
+        return redirect(url_for('user.signin'))
+    
+    # Get admin user data from database
+    user_data = users_collection.find_one({'email': session['user']})
+    
+    # Mock stats for admin
+    stats = {
+        'users_managed': 150,  # Number of users in system
+        'system_health': 'Good'  # System status
+    }
+    
+    return render_template('profile.html', user=user_data, stats=stats)
+
+@user_bp.route('/update_profile', methods=['POST'])
+def update_profile():
+    if 'user' not in session:
+        return redirect(url_for('user.signin'))
+    
+    form_type = request.form.get('form_type')
+    
+    if form_type == 'personal':
+        # Handle profile image upload
+        profile_image = None
+        if 'profile_image' in request.files:
+            file = request.files['profile_image']
+            if file and file.filename:
+                # Generate unique filename with user email and timestamp
+                timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+                user_email = session['user'].split('@')[0]  # Get username part before @
+                file_extension = os.path.splitext(secure_filename(file.filename))[1]
+                filename = f"{user_email}_{timestamp}{file_extension}"
+                
+                file_path = os.path.join('static/uploads', filename)
+                os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                file.save(file_path)
+                profile_image = filename
+        
+        # Update user profile (excluding email and phone which users cannot change)
+        update_data = {
+            'fullname': request.form.get('fullname'),
+            'bio': request.form.get('bio'),
+            'location': request.form.get('location'),
+            'job_title': request.form.get('job_title'),
+            'company': request.form.get('company'),
+            'experience': request.form.get('experience')
+        }
+        
+        if profile_image:
+            update_data['profile_image'] = profile_image
+        
+        # Update in database
+        users_collection.update_one(
+            {'email': session['user']},
+            {'$set': update_data}
+        )
+        
+        flash('Profile updated successfully!', 'success')
+    
+    return redirect(url_for('user.profile'))
+
+@user_bp.route('/change_password', methods=['POST'])
+def change_password():
+    if 'user' not in session:
+        return redirect(url_for('user.signin'))
+    
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+    
+    # Get user
+    user = users_collection.find_one({'email': session['user']})
+    
+    # Verify current password
+    if not bcrypt.checkpw(current_password.encode('utf-8'), user['password']):
+        flash('Current password is incorrect.', 'error')
+        return redirect(url_for('user.profile'))
+    
+    # Check if new passwords match
+    if new_password != confirm_password:
+        flash('New passwords do not match.', 'error')
+        return redirect(url_for('user.profile'))
+    
+    # Validate password strength
+    if len(new_password) < 8:
+        flash('Password must be at least 8 characters long.', 'error')
+        return redirect(url_for('user.profile'))
+    
+    # Hash new password
+    hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+    
+    # Update password
+    users_collection.update_one(
+        {'email': session['user']},
+        {'$set': {'password': hashed_password}}
+    )
+    
+    flash('Password changed successfully!', 'success')
+    return redirect(url_for('user.profile'))
+
+@user_bp.route('/update_preferences', methods=['POST'])
+def update_preferences():
+    if 'user' not in session:
+        return redirect(url_for('user.signin'))
+    
+    # Update user preferences
+    preferences = {
+        'email_notifications': 'email_notifications' in request.form,
+        'practice_reminders': 'practice_reminders' in request.form,
+        'weekly_reports': 'weekly_reports' in request.form,
+        'theme': request.form.get('theme', 'light'),
+        'language': request.form.get('language', 'en'),
+        'timezone': request.form.get('timezone', 'UTC')
+    }
+    
+    users_collection.update_one(
+        {'email': session['user']},
+        {'$set': preferences}
+    )
+    
+    flash('Preferences updated successfully!', 'success')
+    return redirect(url_for('user.profile'))
+
+@user_bp.route('/delete_account')
+def delete_account():
+    if 'user' not in session:
+        return redirect(url_for('user.signin'))
+    
+    # Delete user account
+    users_collection.delete_one({'email': session['user']})
+    
+    # Clear session
+    session.pop('user', None)
+    
+    flash('Account deleted successfully.', 'success')
+    return redirect(url_for('index'))
 
 @user_bp.route('/logout')
 def logout():
