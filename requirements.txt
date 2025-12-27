@@ -2,3 +2,5 @@ Flask>=2.2
 pymongo>=4.0
 python-dotenv>=0.19
 bcrypt>=4.0
+google-generativeai>=0.3.0
+numpy>=1.24.0

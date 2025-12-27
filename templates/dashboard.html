@@ -29,188 +29,146 @@
             </div>
         </div>
 
-        <!-- Tabs -->
-        <div class="tabs fade-in">
-            <div class="tab-buttons">
-                <button class="tab-button active" onclick="switchTab('practice')">Interview Prep</button>
-            </div>
-
-            <!-- Interview Prep Tab (merged) -->
-            <div id="practice" class="tab-content tab-pane active">
-                <div class="interview-list">
-                    <!-- Example past interviews (replace with dynamic content as needed) -->
-                    <div class="interview-item">
-                        <div class="interview-icon"><i class="fas fa-code"></i></div>
-                        <div class="interview-details">
-                            <div class="interview-title">Software Engineer Interview</div>
-                            <div class="interview-meta">Tech Corp • March 15, 2025 • 45 minutes</div>
-                            <span class="interview-score score-high">Score: 9.2/10</span>
-                        </div>
-                        <div class="interview-actions">
-                            <a href="#" class="btn btn-primary">View Details</a>
-                            <a href="#" class="btn btn-secondary">Review</a>
-                        </div>
-                    </div>
-                    <div class="interview-item">
-                        <div class="interview-icon"><i class="fas fa-chart-bar"></i></div>
-                        <div class="interview-details">
-                            <div class="interview-title">Data Analyst Interview</div>
-                            <div class="interview-meta">Data Solutions Inc • March 8, 2025 • 40 minutes</div>
-                            <span class="interview-score score-high">Score: 8.7/10</span>
-                        </div>
-                        <div class="interview-actions">
-                            <a href="#" class="btn btn-primary">View Details</a>
-                            <a href="#" class="btn btn-secondary">Review</a>
-                        </div>
-                    </div>
-                    <div class="interview-item">
-                        <div class="interview-icon"><i class="fas fa-users"></i></div>
-                        <div class="interview-details">
-                            <div class="interview-title">Product Manager Interview</div>
-                            <div class="interview-meta">StartupXYZ • February 28, 2025 • 50 minutes</div>
-                            <span class="interview-score score-medium">Score: 7.5/10</span>
-                        </div>
-                        <div class="interview-actions">
-                            <a href="#" class="btn btn-primary">View Details</a>
-                            <a href="#" class="btn btn-secondary">Review</a>
-                        </div>
-                    </div>
-                    <div class="interview-item">
-                        <div class="interview-icon"><i class="fas fa-briefcase"></i></div>
-                        <div class="interview-details">
-                            <div class="interview-title">Marketing Manager Interview</div>
-                            <div class="interview-meta">Brand Agency • February 20, 2025 • 35 minutes</div>
-                            <span class="interview-score score-high">Score: 8.9/10</span>
-                        </div>
-                        <div class="interview-actions">
-                            <a href="#" class="btn btn-primary">View Details</a>
-                            <a href="#" class="btn btn-secondary">Review</a>
-                        </div>
-                    </div>
-                </div>
-                <!-- Floating Action Button for New Interview -->
-                <button class="fab" title="Start New Interview" onclick="startNewInterview()">
-                    <i class="fas fa-plus"></i>
-                </button>
-                <!-- AI Interview Prep Chat Section -->
-                <div class="chat-container" style="margin-top:40px;">
-                    <div class="chat-header">
-                        <h3><i class="fas fa-robot"></i> AI Interview Coach</h3>
-                        <p>Practice with our intelligent chatbot</p>
-                    </div>
-                    <div class="chat-messages" id="chatMessages">
-                        <div class="message bot">
-                            <div class="message-content">
-                                Hello! I'm your AI Interview Coach. I can help you practice for interviews by asking questions and providing feedback. What type of interview would you like to practice today?
-                            </div>
-                        </div>
-                    </div>
-                    <div class="chat-input">
-                        <form class="chat-form" onsubmit="sendMessage(event)">
-                            <input type="text" class="chat-input-field" id="messageInput" placeholder="Type your response here..." required>
-                            <button type="submit" class="chat-send-btn">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Floating Action Button for New Interview -->
+        <button class="fab" title="Start New Interview" onclick="openInterviewModal()">
+            <i class="fas fa-plus"></i>
+        </button>
     </div>
 
     <!-- Bottom Navigation for Mobile -->
-    {% include 'bottom_nav.html' %}
+    <!-- Interview Setup Modal -->
+    <div id="interviewModal" class="modal-overlay" style="display:none;">
+        <div class="modal-content-wrapper">
+            <button class="modal-close-btn" onclick="closeInterviewModal()">&times;</button>
+            <h2 class="interview-setup-title">Ready to Practice?</h2>
+            <p class="interview-setup-desc">Configure your custom interview session. Our AI will simulate a real hiring manager based on your input.</p>
+            
+            <form id="interviewSetupForm" class="interview-setup-form" onsubmit="submitInterviewForm(event)">
+                <div class="interview-setup-grid">
+                    <div class="interview-setup-field">
+                        <label class="interview-setup-label">Target Role</label>
+                        <input
+                            type="text"
+                            id="interviewRole"
+                            class="interview-setup-input"
+                            placeholder="e.g. Product Manager"
+                            value="Software Engineer"
+                            required
+                        />
+                    </div>
+                    <div class="interview-setup-field">
+                        <label class="interview-setup-label">Experience Level</label>
+                        <select id="interviewLevel" class="interview-setup-select">
+                            <option>Intern</option>
+                            <option>Junior</option>
+                            <option>Mid-level</option>
+                            <option selected>Senior</option>
+                            <option>Staff/Principal</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="interview-setup-field">
+                    <label class="interview-setup-label">Target Company</label>
+                    <input
+                        type="text"
+                        id="interviewCompany"
+                        class="interview-setup-input"
+                        placeholder="e.g. Amazon"
+                        value="Google"
+                        required
+                    />
+                </div>
+
+                <div class="interview-setup-field">
+                    <label class="interview-setup-label">Interview Focus / Context</label>
+                    <textarea
+                        id="interviewDescription"
+                        class="interview-setup-textarea"
+                        placeholder="Paste the job description or specific areas you want to cover..."
+                    >General system design and behavioral interview.</textarea>
+                </div>
+
+                <button type="submit" class="interview-setup-submit">
+                    Start Mock Interview
+                </button>
+            </form>
+        </div>
+    </div>
 
     <script>
-        // Tab switching functionality
-        function switchTab(tabName) {
-            // Hide all tab panes
-            const tabPanes = document.querySelectorAll('.tab-pane');
-            tabPanes.forEach(pane => pane.classList.remove('active'));
-
-            // Remove active class from all tab buttons
-            const tabButtons = document.querySelectorAll('.tab-button');
-            tabButtons.forEach(button => button.classList.remove('active'));
-
-            // Show selected tab pane
-            document.getElementById(tabName).classList.add('active');
-
-            // Add active class to clicked button
-            event.target.classList.add('active');
-        }
-
-        // AI Chatbot functionality
-        function sendMessage(event) {
-            event.preventDefault();
-
-            const input = document.getElementById('messageInput');
-            const message = input.value.trim();
-
-            if (message) {
-                // Add user message
-                addMessage(message, 'user');
-
-                // Clear input
-                input.value = '';
-
-                // Simulate AI response (in a real app, this would be an API call)
-                setTimeout(() => {
-                    const responses = [
-                        "Great answer! Can you elaborate on your experience with that technology?",
-                        "That's interesting. How would you handle a situation where a project deadline is approaching and you're falling behind?",
-                        "Good point. What are your strengths and how do they align with this role?",
-                        "Excellent! Tell me about a time when you had to solve a difficult problem at work.",
-                        "Well done! How do you stay updated with the latest trends in your field?"
-                    ];
-                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                    addMessage(randomResponse, 'bot');
-                }, 1000);
+        // Modal logic
+        function openInterviewModal() {
+            const modal = document.getElementById('interviewModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
             }
         }
-
-        function addMessage(content, sender) {
-            const messagesContainer = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}`;
-
-            messageDiv.innerHTML = `
-                <div class="message-content">${content}</div>
-            `;
-
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        function closeInterviewModal() {
+            const modal = document.getElementById('interviewModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
         }
-
-        // Add fade-in animation on scroll
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('fade-in');
+        
+        // Handle form submit
+        async function submitInterviewForm(event) {
+            event.preventDefault();
+            
+            // Get form data
+            const formData = {
+                role: document.getElementById('interviewRole').value,
+                level: document.getElementById('interviewLevel').value,
+                company: document.getElementById('interviewCompany').value,
+                description: document.getElementById('interviewDescription').value
+            };
+            
+            try {
+                // Start interview session via backend
+                const response = await fetch('/api/interview/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Store in sessionStorage to pass to interview page
+                    sessionStorage.setItem('interviewSession', JSON.stringify(formData));
+                    
+                    // Redirect to interview page
+                    closeInterviewModal();
+                    window.location.href = "{{ url_for('user.interview') }}";
+                } else {
+                    alert('Failed to start interview. Please try again.');
                 }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.fade-in').forEach(el => {
-            observer.observe(el);
-        });
-
-        // Mobile bottom nav active state
-        document.querySelectorAll('.bottom-nav-menu a').forEach(link => {
-            link.addEventListener('click', function(e) {
-                document.querySelectorAll('.bottom-nav-menu a').forEach(a => a.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-
-        function startNewInterview() {
-            // Redirect or open modal for new interview
-            alert('Start a new interview (implement logic here)');
+            } catch (error) {
+                console.error('Error starting interview:', error);
+                alert('Error starting interview. Please try again.');
+            }
         }
+        
+        // Only close modal if clicking overlay, not modal content
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('interviewModal');
+            if (modal) {
+                modal.addEventListener('mousedown', function(e) {
+                    if (e.target === this) closeInterviewModal();
+                });
+            }
+            
+            // Escape key closes modal
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeInterviewModal();
+            });
+        });
+
     </script>
 </body>
 </html>

@@ -172,6 +172,26 @@ def dashboard():
     
     return render_template('dashboard.html', **dashboard_data)
 
+@user_bp.route('/interview')
+def interview():
+    if 'user' not in session:
+        return redirect(url_for('user.signin'))
+    
+    # Get user data from database
+    user_data = users_collection.find_one({'email': session['user']})
+    
+    return render_template('interview.html', user=user_data)
+
+@user_bp.route('/feedback')
+def feedback():
+    if 'user' not in session:
+        return redirect(url_for('user.signin'))
+    
+    # Get user data from database
+    user_data = users_collection.find_one({'email': session['user']})
+    
+    return render_template('feedback.html', user=user_data)
+
 @user_bp.route('/admin_dashboard')
 def admin_dashboard():
     if 'user' not in session or session['user'] != 'admin@gmail.com':

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Interview - SkillSpeak</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/interview.css') }}">
+</head>
+<body>
+    <!-- Main Content -->
+    <div class="main-content" style="margin-left: 0;">
+        <!-- Loading State -->
+        <div id="loadingState" class="interview-loading">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Connecting to your interviewer...</p>
+        </div>
+
+        <!-- Interview Interface -->
+        <div id="interviewInterface" class="interview-interface" style="display: none;">
+            <div class="interview-grid">
+                <!-- Bot Interface -->
+                <div class="interview-main">
+                    <div class="interview-bot-card">
+                        <div class="interview-timer" id="interviewTimer">0:00</div>
+                        
+                        <div class="interview-avatar-container" id="avatarContainer">
+                            <div class="interview-avatar-pulse"></div>
+                            <div class="interview-avatar">
+                                <svg class="interview-avatar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <h3 class="interview-bot-title">Mock Interviewer</h3>
+                        <p class="interview-status" id="interviewStatus">Listening...</p>
+
+                        <button onclick="endInterview()" class="interview-end-btn">
+                            <i class="fas fa-times"></i>
+                            <span>End Interview</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Transcription Sidebar -->
+                <div class="interview-sidebar">
+                    <h4 class="interview-sidebar-title">
+                        <i class="fas fa-comments"></i>
+                        <span>Live Transcript</span>
+                    </h4>
+                    <div class="interview-transcript" id="interviewTranscript">
+                        <div class="transcript-empty">
+                            Transcription will appear as you talk.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let elapsedTime = 0;
+        let timerInterval = null;
+        let isConnecting = true;
+        let isBotSpeaking = false;
+        const transcription = [];
+
+        // Get interview session data
+        function getInterviewSession() {
+            const sessionData = sessionStorage.getItem('interviewSession');
+            if (sessionData) {
+                try {
+                    return JSON.parse(sessionData);
+                } catch (e) {
+                    console.error('Error parsing session data:', e);
+                }
+            }
+            return null;
+        }
+
+        // Initialize interview
+        async function initInterview() {
+            const session = getInterviewSession();
+            if (!session) {
+                alert('No interview session found. Please start a new interview.');
+                window.location.href = "{{ url_for('user.dashboard') }}";
+                return;
+            }
+            
+            try {
+                // Start interview session via backend
+                const response = await fetch('/api/interview/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(session)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('Interview session started:', data);
+                    // Connection successful
+                    setTimeout(() => {
+                        isConnecting = false;
+                        document.getElementById('loadingState').style.display = 'none';
+                        document.getElementById('interviewInterface').style.display = 'block';
+                        startTimer();
+                        // TODO: Initialize audio session here with Google GenAI Live API
+                        // For now, simulate some transcription for demo
+                        simulateInterview();
+                    }, 1500);
+                } else {
+                    alert('Failed to start interview session. Please try again.');
+                    window.location.href = "{{ url_for('user.dashboard') }}";
+                }
+            } catch (error) {
+                console.error('Error initializing interview:', error);
+                alert('Error starting interview. Please try again.');
+                window.location.href = "{{ url_for('user.dashboard') }}";
+            }
+        }
+        
+        // Simulate interview for demo (remove when implementing real audio)
+        function simulateInterview() {
+            setTimeout(() => {
+                addTranscriptionLine('Interviewer', 'Hello! Thank you for joining us today. Let\'s start with a brief introduction.');
+                setBotSpeaking(true);
+                setTimeout(() => {
+                    setBotSpeaking(false);
+                }, 3000);
+            }, 2000);
+        }
+
+        // Timer functionality
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                elapsedTime++;
+                updateTimer();
+            }, 1000);
+        }
+
+        function updateTimer() {
+            const mins = Math.floor(elapsedTime / 60);
+            const secs = elapsedTime % 60;
+            document.getElementById('interviewTimer').textContent = 
+                `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Update bot speaking state
+        function setBotSpeaking(speaking) {
+            isBotSpeaking = speaking;
+            const avatarContainer = document.getElementById('avatarContainer');
+            const statusText = document.getElementById('interviewStatus');
+            
+            if (speaking) {
+                avatarContainer.classList.add('speaking');
+                statusText.textContent = 'Speaking...';
+            } else {
+                avatarContainer.classList.remove('speaking');
+                statusText.textContent = 'Listening...';
+            }
+        }
+
+        // Add transcription line
+        async function addTranscriptionLine(speaker, text) {
+            const transcript = document.getElementById('interviewTranscript');
+            const emptyMsg = transcript.querySelector('.transcript-empty');
+            if (emptyMsg) {
+                emptyMsg.remove();
+            }
+
+            const line = document.createElement('div');
+            line.className = `transcript-line ${speaker === 'Candidate' ? 'candidate' : 'interviewer'}`;
+            
+            const speakerSpan = document.createElement('span');
+            speakerSpan.className = 'transcript-speaker';
+            speakerSpan.textContent = speaker + ':';
+            
+            const textSpan = document.createElement('span');
+            textSpan.className = 'transcript-text';
+            textSpan.textContent = ' ' + text;
+            
+            line.appendChild(speakerSpan);
+            line.appendChild(textSpan);
+            transcript.appendChild(line);
+            transcript.scrollTop = transcript.scrollHeight;
+            
+            // Store in transcription array
+            transcription.push(`${speaker}: ${text}`);
+            
+            // Send to backend
+            try {
+                await fetch('/api/interview/transcript', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        line: text,
+                        speaker: speaker
+                    })
+                });
+            } catch (error) {
+                console.error('Error saving transcript line:', error);
+            }
+        }
+
+        // End interview
+        async function endInterview() {
+            if (confirm('Are you sure you want to end the interview?')) {
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                }
+                
+                // TODO: Cleanup audio session
+                
+                // Get final transcript
+                try {
+                    const transcriptResponse = await fetch('/api/interview/transcript');
+                    const transcriptData = await transcriptResponse.json();
+                    const finalTranscript = transcriptData.transcript || transcription;
+                    
+                    // Analyze interview and get feedback
+                    const analyzeResponse = await fetch('/api/interview/analyze', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            transcript: finalTranscript
+                        })
+                    });
+                    
+                    const analyzeData = await analyzeResponse.json();
+                    
+                    if (analyzeData.success && analyzeData.feedback) {
+                        // Store feedback in sessionStorage
+                        sessionStorage.setItem('interviewFeedback', JSON.stringify(analyzeData.feedback));
+                        
+                        // End interview session
+                        await fetch('/api/interview/end', {
+                            method: 'POST'
+                        });
+                        
+                        // Redirect to feedback page
+                        window.location.href = "{{ url_for('user.feedback') }}";
+                    } else {
+                        // Fallback to mock data if analysis fails
+                        const mockFeedback = {
+                            overallScore: 75,
+                            technicalScore: 75,
+                            communicationScore: 75,
+                            confidenceScore: 75,
+                            summary: "Interview completed. Analysis pending.",
+                            strengths: ["Completed the interview"],
+                            improvements: ["Could improve with more practice"]
+                        };
+                        sessionStorage.setItem('interviewFeedback', JSON.stringify(mockFeedback));
+                        window.location.href = "{{ url_for('user.feedback') }}";
+                    }
+                } catch (error) {
+                    console.error('Error ending interview:', error);
+                    // Fallback to mock data
+                    const mockFeedback = {
+                        overallScore: 75,
+                        technicalScore: 75,
+                        communicationScore: 75,
+                        confidenceScore: 75,
+                        summary: "Interview completed. Analysis pending.",
+                        strengths: ["Completed the interview"],
+                        improvements: ["Could improve with more practice"]
+                    };
+                    sessionStorage.setItem('interviewFeedback', JSON.stringify(mockFeedback));
+                    window.location.href = "{{ url_for('user.feedback') }}";
+                }
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initInterview();
+            
+            // Demo: Simulate some transcription after 5 seconds
+            setTimeout(() => {
+                addTranscriptionLine('Interviewer', 'Hello! Thank you for joining us today. Let\'s start with a brief introduction.');
+            }, 5000);
+            
+            setTimeout(() => {
+                setBotSpeaking(true);
+                setTimeout(() => {
+                    setBotSpeaking(false);
+                }, 3000);
+            }, 6000);
+        });
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+        });
+    </script>
+</body>
+</html>
+

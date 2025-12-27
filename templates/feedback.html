@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Feedback - SkillSpeak</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/feedback.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    {% set sidebar_title = 'Interview Feedback' %}
+    {% set active_page = 'feedback' %}
+    {% include 'sidebar.html' %}
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="feedback-container">
+            <div class="feedback-card">
+                <!-- Header -->
+                <div class="feedback-header">
+                    <div class="feedback-header-content">
+                        <h2 class="feedback-title">Interview Complete</h2>
+                        <p class="feedback-subtitle">Detailed analysis of your performance.</p>
+                    </div>
+                    <div class="feedback-score">
+                        <div class="feedback-score-value" id="overallScore">85%</div>
+                        <div class="feedback-score-label">Overall Score</div>
+                    </div>
+                </div>
+
+                <div class="feedback-body">
+                    <div class="feedback-grid">
+                        <!-- Chart Section -->
+                        <div class="feedback-section">
+                            <h3 class="feedback-section-title">Skills Matrix</h3>
+                            <div class="feedback-chart-container">
+                                <canvas id="radarChart"></canvas>
+                            </div>
+                            
+                            <div class="feedback-summary-box">
+                                <h4 class="feedback-summary-title">Expert Summary</h4>
+                                <p class="feedback-summary-text" id="summaryText">
+                                    "You demonstrated strong technical knowledge and clear communication throughout the interview. Your answers were well-structured and relevant to the questions asked."
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Qualitative Section -->
+                        <div class="feedback-section">
+                            <section class="feedback-list-section">
+                                <h3 class="feedback-list-title strengths">
+                                    <i class="fas fa-check-circle"></i>
+                                    Key Strengths
+                                </h3>
+                                <ul class="feedback-list" id="strengthsList">
+                                    <li class="feedback-list-item strengths">
+                                        <span class="feedback-list-bullet">•</span>
+                                        Strong technical knowledge in system design
+                                    </li>
+                                    <li class="feedback-list-item strengths">
+                                        <span class="feedback-list-bullet">•</span>
+                                        Clear and concise communication style
+                                    </li>
+                                    <li class="feedback-list-item strengths">
+                                        <span class="feedback-list-bullet">•</span>
+                                        Well-structured answers using STAR method
+                                    </li>
+                                    <li class="feedback-list-item strengths">
+                                        <span class="feedback-list-bullet">•</span>
+                                        Good problem-solving approach
+                                    </li>
+                                </ul>
+                            </section>
+
+                            <section class="feedback-list-section">
+                                <h3 class="feedback-list-title improvements">
+                                    <i class="fas fa-bolt"></i>
+                                    Areas to Improve
+                                </h3>
+                                <ul class="feedback-list" id="improvementsList">
+                                    <li class="feedback-list-item improvements">
+                                        <span class="feedback-list-bullet">•</span>
+                                        Could provide more specific examples from past experience
+                                    </li>
+                                    <li class="feedback-list-item improvements">
+                                        <span class="feedback-list-bullet">•</span>
+                                        Practice speaking more confidently during technical explanations
+                                    </li>
+                                    <li class="feedback-list-item improvements">
+                                        <span class="feedback-list-bullet">•</span>
+                                        Work on time management for complex problem-solving
+                                    </li>
+                                </ul>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="feedback-footer">
+                    <button onclick="practiceAgain()" class="feedback-action-btn">
+                        Practice Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'bottom_nav.html' %}
+
+    <script>
+        // Initialize radar chart (will be updated with actual data)
+        function initRadarChart() {
+            // Chart will be initialized in loadFeedbackData with actual scores
+        }
+
+        // Get feedback data from sessionStorage or use defaults
+        function getFeedbackData() {
+            const feedbackData = sessionStorage.getItem('interviewFeedback');
+            if (feedbackData) {
+                try {
+                    return JSON.parse(feedbackData);
+                } catch (e) {
+                    console.error('Error parsing feedback data:', e);
+                }
+            }
+            // If no feedback in sessionStorage, redirect to dashboard
+            alert('No feedback data found. Redirecting to dashboard.');
+            window.location.href = "{{ url_for('user.dashboard') }}";
+            return null;
+        }
+
+        // Load feedback data
+        function loadFeedbackData() {
+            const feedback = getFeedbackData();
+            
+            if (!feedback) return;
+            
+            // Update overall score
+            document.getElementById('overallScore').textContent = feedback.overallScore + '%';
+            
+            // Update summary
+            document.getElementById('summaryText').textContent = '"' + feedback.summary + '"';
+            
+            // Update strengths
+            const strengthsList = document.getElementById('strengthsList');
+            strengthsList.innerHTML = '';
+            if (feedback.strengths && feedback.strengths.length > 0) {
+                feedback.strengths.forEach(strength => {
+                    const li = document.createElement('li');
+                    li.className = 'feedback-list-item strengths';
+                    li.innerHTML = `<span class="feedback-list-bullet">•</span>${strength}`;
+                    strengthsList.appendChild(li);
+                });
+            }
+            
+            // Update improvements
+            const improvementsList = document.getElementById('improvementsList');
+            improvementsList.innerHTML = '';
+            if (feedback.improvements && feedback.improvements.length > 0) {
+                feedback.improvements.forEach(improvement => {
+                    const li = document.createElement('li');
+                    li.className = 'feedback-list-item improvements';
+                    li.innerHTML = `<span class="feedback-list-bullet">•</span>${improvement}`;
+                    improvementsList.appendChild(li);
+                });
+            }
+            
+            // Update chart with actual scores
+            updateChart(feedback);
+        }
+        
+        // Update chart with feedback data
+        function updateChart(feedback) {
+            const chartData = {
+                labels: ['Technical', 'Communication', 'Confidence', 'Structure', 'Relevance'],
+                datasets: [{
+                    label: 'Performance',
+                    data: [
+                        feedback.technicalScore || 75,
+                        feedback.communicationScore || 75,
+                        feedback.confidenceScore || 75,
+                        85, // Structure (can be calculated or default)
+                        90  // Relevance (can be calculated or default)
+                    ],
+                    backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                    borderColor: 'rgba(102, 126, 234, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(102, 126, 234, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(102, 126, 234, 1)'
+                }]
+            };
+            
+            // Destroy existing chart if it exists
+            if (window.radarChart) {
+                window.radarChart.destroy();
+            }
+            
+            const ctx = document.getElementById('radarChart');
+            if (ctx) {
+                window.radarChart = new Chart(ctx, {
+                    type: 'radar',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    stepSize: 20,
+                                    display: false
+                                },
+                                grid: {
+                                    color: '#e2e8f0'
+                                },
+                                pointLabels: {
+                                    font: {
+                                        size: 12,
+                                        family: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+                                    },
+                                    color: '#64748b'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Practice again button
+        function practiceAgain() {
+            window.location.href = "{{ url_for('user.dashboard') }}";
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFeedbackData();
+            initRadarChart();
+        });
+    </script>
+</body>
+</html>
+
